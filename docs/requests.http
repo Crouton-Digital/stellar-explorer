@@ -1,0 +1,70 @@
+@base = http://localhost:8080
+
+### Liveness
+GET {{base}}/health/live
+
+### Readiness
+GET {{base}}/health/ready
+
+### Overview, indexed range and last RPC observation
+GET {{base}}/api/v1/overview
+
+### Ledgers (use next_cursor exactly as returned for the next request)
+GET {{base}}/api/v1/ledgers?limit=5
+
+### Transactions
+GET {{base}}/api/v1/transactions?limit=5
+
+### Captured Testnet ledger; available after fixture replay
+GET {{base}}/api/v1/ledgers/5569284
+
+### Typed search
+GET {{base}}/api/v1/search?q=5569284
+
+### Validation error
+GET {{base}}/api/v1/ledgers?limit=-1
+
+### OpenAPI 3.0.3
+GET {{base}}/openapi.json
+
+### Observed token contracts
+GET {{base}}/api/v1/assets?limit=20
+
+### Decoded committed token movements
+GET {{base}}/api/v1/transfers?limit=20
+
+### Native SAC metadata, creation evidence, related transactions and events
+GET {{base}}/api/v1/contracts/CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC
+
+### Successful indexed transactions, with inclusive ledger bounds
+GET {{base}}/api/v1/transactions?status=success&min_ledger=5569284&max_ledger=5569284&limit=5
+
+### Committed transfer events (first symbol topic)
+GET {{base}}/api/v1/events?event_name=transfer&event_type=contract&limit=10
+
+### Committed transaction-level fees/refunds, including failed transactions
+GET {{base}}/api/v1/events?event_scope=transaction&event_name=fee&limit=10
+
+### Operation events only
+GET {{base}}/api/v1/events?event_scope=operation&limit=10
+
+### Movements of the native SAC
+GET {{base}}/api/v1/transfers?asset=CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC
+
+### Bounded indexed transaction activity (fixed 120-ledger maximum; no limit parameter)
+GET {{base}}/api/v1/activity/transactions
+
+### Failed transaction counts in the same bounded window
+GET {{base}}/api/v1/activity/transactions?status=failed
+
+### Fungible movement counts by kind; amounts are not summed
+GET {{base}}/api/v1/activity/transfers
+
+### Observed NFT collections and snapshot counts
+GET {{base}}/api/v1/nfts/collections?limit=20
+
+### Supported NFT movements, separate from fungible amounts
+GET {{base}}/api/v1/nfts/transfers?limit=20
+
+### Exact NFT identifier zero, potentially across multiple collections
+GET {{base}}/api/v1/nfts/transfers?token_id=0

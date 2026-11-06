@@ -1,0 +1,15 @@
+.git
+.env
+.ai
+AGENTS.md
+.vscode
+.agents
+.codex
+.aws
+web/node_modules
+web/.nuxt
+web/.output
+web/test-results
+web/playwright-report
+bin
+coverage

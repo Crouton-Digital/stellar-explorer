@@ -1,0 +1,4937 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Crouton Stellar Explorer API",
+    "version": "0.1.0",
+    "description": "Read-only Testnet explorer. All history is limited to the indexed range. CAP-67 transaction events include fees and refunds when supplied by metadata v4. Missing or invalid fee breakdowns remain explicitly unknown. Missing entities do not prove absence on the network."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080"
+    }
+  ],
+  "paths": {
+    "/api/v1/overview": {
+      "get": {
+        "operationId": "overview",
+        "summary": "Indexed and observed network state, latest ledgers and transactions",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Network"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Overview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or cursor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ledgers": {
+      "get": {
+        "operationId": "ledgers_list",
+        "summary": "Ledgers ordered by sequence descending",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Network"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LedgerPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or cursor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ledgers/{sequence}": {
+      "get": {
+        "operationId": "ledger_detail",
+        "summary": "Ledger and a page of its transactions",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Network"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "name": "sequence",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 4294967295
+            }
+          },
+          {
+            "$ref": "#/components/parameters/FilterAddress"
+          },
+          {
+            "$ref": "#/components/parameters/FilterContract"
+          },
+          {
+            "$ref": "#/components/parameters/FilterFunction"
+          },
+          {
+            "$ref": "#/components/parameters/FilterStatus"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMinLedger"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMaxLedger"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LedgerDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or cursor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found in indexed data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "Filters use AND, reject repeated/empty/unknown parameters, and are bound to the cursor. Changing filters requires omitting the previous cursor. A valid query with no matches returns an empty page."
+      }
+    },
+    "/api/v1/transactions": {
+      "get": {
+        "operationId": "transactions_list",
+        "summary": "Transactions ordered by ledger and application index descending",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Network"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "$ref": "#/components/parameters/FilterAddress"
+          },
+          {
+            "$ref": "#/components/parameters/FilterContract"
+          },
+          {
+            "$ref": "#/components/parameters/FilterFunction"
+          },
+          {
+            "$ref": "#/components/parameters/FilterStatus"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMinLedger"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMaxLedger"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or cursor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "Filters use AND, reject repeated/empty/unknown parameters, and are bound to the cursor. Changing filters requires omitting the previous cursor. A valid query with no matches returns an empty page."
+      }
+    },
+    "/api/v1/transactions/{hash}": {
+      "get": {
+        "operationId": "transaction_detail",
+        "summary": "Transaction, operations, root calls, committed events and raw XDR",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Network"
+          },
+          {
+            "name": "hash",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{64}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Transaction"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or cursor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found in indexed data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{address}": {
+      "get": {
+        "operationId": "account_detail",
+        "summary": "Indexed account participants; no balance or complete effects history",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Network"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^G[A-Z2-7]{55}$"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/FilterAddress"
+          },
+          {
+            "$ref": "#/components/parameters/FilterContract"
+          },
+          {
+            "$ref": "#/components/parameters/FilterFunction"
+          },
+          {
+            "$ref": "#/components/parameters/FilterStatus"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMinLedger"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMaxLedger"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or cursor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found in indexed data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "Filters use AND, reject repeated/empty/unknown parameters, and are bound to the cursor. Changing filters requires omitting the previous cursor. A valid query with no matches returns an empty page."
+      }
+    },
+    "/api/v1/accounts/{address}/transactions": {
+      "get": {
+        "operationId": "account_transactions",
+        "summary": "Transactions involving supported indexed participant roles",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Network"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^G[A-Z2-7]{55}$"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/FilterAddress"
+          },
+          {
+            "$ref": "#/components/parameters/FilterContract"
+          },
+          {
+            "$ref": "#/components/parameters/FilterFunction"
+          },
+          {
+            "$ref": "#/components/parameters/FilterStatus"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMinLedger"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMaxLedger"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or cursor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found in indexed data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "Filters use AND, reject repeated/empty/unknown parameters, and are bound to the cursor. Changing filters requires omitting the previous cursor. A valid query with no matches returns an empty page."
+      }
+    },
+    "/api/v1/contracts/{address}": {
+      "get": {
+        "operationId": "contract_detail",
+        "summary": "Observed contract metadata, related transactions and recent events",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Network"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^C[A-Z2-7]{55}$"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/FilterAddress"
+          },
+          {
+            "$ref": "#/components/parameters/FilterContract"
+          },
+          {
+            "$ref": "#/components/parameters/FilterFunction"
+          },
+          {
+            "$ref": "#/components/parameters/FilterStatus"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMinLedger"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMaxLedger"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContractDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or cursor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found in indexed data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "Filters use AND, reject repeated/empty/unknown parameters, and are bound to the cursor. Changing filters requires omitting the previous cursor. A valid query with no matches returns an empty page."
+      }
+    },
+    "/api/v1/contracts/{address}/events": {
+      "get": {
+        "operationId": "contract_events",
+        "summary": "Committed events ordered by ledger, hash and event index descending",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Network"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^C[A-Z2-7]{55}$"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/FilterContract"
+          },
+          {
+            "$ref": "#/components/parameters/FilterEventType"
+          },
+          {
+            "$ref": "#/components/parameters/FilterEventName"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMinLedger"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMaxLedger"
+          },
+          {
+            "$ref": "#/components/parameters/FilterEventScope"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or cursor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found in indexed data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "Filters use AND, reject repeated/empty/unknown parameters, and are bound to the cursor. Changing filters requires omitting the previous cursor. A valid query with no matches returns an empty page."
+      }
+    },
+    "/api/v1/search": {
+      "get": {
+        "operationId": "search",
+        "summary": "Resolve an indexed entity into a typed web route",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Network"
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "A positive ledger sequence, a 64-character hex hash, or checksum-valid G/C address. Not-found means not observed in indexed data."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or cursor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found in indexed data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/live": {
+      "get": {
+        "operationId": "live",
+        "summary": "Process liveness, independent of upstream and database",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "operationId": "ready",
+        "summary": "Database readiness, independent of RPC availability and indexer lag",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/assets": {
+      "get": {
+        "operationId": "assets",
+        "summary": "Observed token contracts ordered by first-observed ledger and contract ID descending",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Network"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or cursor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found in indexed data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/assets/{address}": {
+      "get": {
+        "operationId": "asset",
+        "summary": "Token identity, partial indexed range, and movement page",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Network"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^C[A-Z2-7]{55}$"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/FilterAsset"
+          },
+          {
+            "$ref": "#/components/parameters/FilterFrom"
+          },
+          {
+            "$ref": "#/components/parameters/FilterTo"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMinLedger"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMaxLedger"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or cursor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found in indexed data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "Filters use AND, reject repeated/empty/unknown parameters, and are bound to the cursor. Changing filters requires omitting the previous cursor. A valid query with no matches returns an empty page."
+      }
+    },
+    "/api/v1/assets/{address}/transfers": {
+      "get": {
+        "operationId": "asset_transfers",
+        "summary": "Decoded movements emitted by a token contract",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Network"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^C[A-Z2-7]{55}$"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/FilterAsset"
+          },
+          {
+            "$ref": "#/components/parameters/FilterFrom"
+          },
+          {
+            "$ref": "#/components/parameters/FilterTo"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMinLedger"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMaxLedger"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenTransferPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or cursor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found in indexed data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "Filters use AND, reject repeated/empty/unknown parameters, and are bound to the cursor. Changing filters requires omitting the previous cursor. A valid query with no matches returns an empty page."
+      }
+    },
+    "/api/v1/transfers": {
+      "get": {
+        "operationId": "transfers",
+        "summary": "Decoded movements ordered by ledger, transaction application index, and event index descending",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Network"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "$ref": "#/components/parameters/FilterAsset"
+          },
+          {
+            "$ref": "#/components/parameters/FilterFrom"
+          },
+          {
+            "$ref": "#/components/parameters/FilterTo"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMinLedger"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMaxLedger"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenTransferPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or cursor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found in indexed data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "Filters use AND, reject repeated/empty/unknown parameters, and are bound to the cursor. Changing filters requires omitting the previous cursor. A valid query with no matches returns an empty page."
+      }
+    },
+    "/api/v1/accounts/{address}/transfers": {
+      "get": {
+        "operationId": "account_transfers",
+        "summary": "Decoded movements involving an indexed account",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Network"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^G[A-Z2-7]{55}$"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/FilterAsset"
+          },
+          {
+            "$ref": "#/components/parameters/FilterFrom"
+          },
+          {
+            "$ref": "#/components/parameters/FilterTo"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMinLedger"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMaxLedger"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenTransferPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or cursor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found in indexed data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "Filters use AND, reject repeated/empty/unknown parameters, and are bound to the cursor. Changing filters requires omitting the previous cursor. A valid query with no matches returns an empty page."
+      }
+    },
+    "/api/v1/contracts/{address}/transfers": {
+      "get": {
+        "operationId": "contract_transfers",
+        "summary": "Decoded movements emitted by or involving an indexed contract",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Network"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^C[A-Z2-7]{55}$"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/FilterAsset"
+          },
+          {
+            "$ref": "#/components/parameters/FilterFrom"
+          },
+          {
+            "$ref": "#/components/parameters/FilterTo"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMinLedger"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMaxLedger"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenTransferPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or cursor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found in indexed data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "Filters use AND, reject repeated/empty/unknown parameters, and are bound to the cursor. Changing filters requires omitting the previous cursor. A valid query with no matches returns an empty page."
+      }
+    },
+    "/api/v1/events": {
+      "get": {
+        "operationId": "events_list",
+        "summary": "Committed indexed operation events with optional filters",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Network"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "$ref": "#/components/parameters/FilterContract"
+          },
+          {
+            "$ref": "#/components/parameters/FilterEventType"
+          },
+          {
+            "$ref": "#/components/parameters/FilterEventName"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMinLedger"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMaxLedger"
+          },
+          {
+            "$ref": "#/components/parameters/FilterEventScope"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or cursor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "Filters use AND, reject repeated/empty/unknown parameters, and are bound to the cursor. Changing filters requires omitting the previous cursor. A valid query with no matches returns an empty page."
+      }
+    },
+    "/api/v1/nfts/collections": {
+      "get": {
+        "operationId": "nft_collections",
+        "summary": "Observed NFT collections and snapshot counts",
+        "description": "Collection counts use the list cursor snapshot and are not total supply. Only network, limit and cursor are accepted.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Network"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NFTCollectionPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or cursor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found in indexed data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/nfts/transfers": {
+      "get": {
+        "operationId": "nft_transfers",
+        "summary": "Committed NFT movements in descending source order",
+        "description": "Partial indexed NFT event evidence only; no owner, supply or collection certification. Filters are exact AND matches and bind to cursor dataset, scope and snapshot. Empty valid histories return empty pages. Unsupported/malformed/failed or result-commitment-mismatched events are not NFT movements.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Network"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "$ref": "#/components/parameters/FilterNFTCollection"
+          },
+          {
+            "$ref": "#/components/parameters/FilterNFTTokenID"
+          },
+          {
+            "$ref": "#/components/parameters/FilterNFTKind"
+          },
+          {
+            "$ref": "#/components/parameters/FilterFrom"
+          },
+          {
+            "$ref": "#/components/parameters/FilterTo"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMinLedger"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMaxLedger"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NFTTransferPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or cursor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found in indexed data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/nfts/collections/{address}": {
+      "get": {
+        "operationId": "nft_collection",
+        "summary": "Collection evidence, snapshot counts and filtered movement page",
+        "description": "Partial indexed NFT event evidence only; no owner, supply or collection certification. Filters are exact AND matches and bind to cursor dataset, scope and snapshot. Empty valid histories return empty pages. Unsupported/malformed/failed or result-commitment-mismatched events are not NFT movements. Counts cover the whole collection through snapshot_ledger; filters apply to the movement page only.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Network"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^C[A-Z2-7]{55}$"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/FilterNFTCollection"
+          },
+          {
+            "$ref": "#/components/parameters/FilterNFTTokenID"
+          },
+          {
+            "$ref": "#/components/parameters/FilterNFTKind"
+          },
+          {
+            "$ref": "#/components/parameters/FilterFrom"
+          },
+          {
+            "$ref": "#/components/parameters/FilterTo"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMinLedger"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMaxLedger"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NFTCollectionDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or cursor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found in indexed data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/nfts/collections/{address}/transfers": {
+      "get": {
+        "operationId": "nft_collection_transfers",
+        "summary": "NFT movements scoped to an observed collection",
+        "description": "Partial indexed NFT event evidence only; no owner, supply or collection certification. Filters are exact AND matches and bind to cursor dataset, scope and snapshot. Empty valid histories return empty pages. Unsupported/malformed/failed or result-commitment-mismatched events are not NFT movements.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Network"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^C[A-Z2-7]{55}$"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/FilterNFTCollection"
+          },
+          {
+            "$ref": "#/components/parameters/FilterNFTTokenID"
+          },
+          {
+            "$ref": "#/components/parameters/FilterNFTKind"
+          },
+          {
+            "$ref": "#/components/parameters/FilterFrom"
+          },
+          {
+            "$ref": "#/components/parameters/FilterTo"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMinLedger"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMaxLedger"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NFTTransferPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or cursor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found in indexed data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/nfts/collections/{address}/tokens/{id}": {
+      "get": {
+        "operationId": "nft_item",
+        "summary": "Observed token ID, snapshot count and movement page",
+        "description": "Partial indexed NFT event evidence only; no owner, supply or collection certification. Filters are exact AND matches and bind to cursor dataset, scope and snapshot. Empty valid histories return empty pages. Unsupported/malformed/failed or result-commitment-mismatched events are not NFT movements. Identity is network plus collection plus exact token ID. Counts cover the whole item through snapshot_ledger; filters apply only to its movement page.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Network"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^C[A-Z2-7]{55}$"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$",
+              "maxLength": 78,
+              "description": "Canonical unsigned decimal token identifier from zero through 2^256-1. Never a floating-point amount; no leading zeros except zero itself."
+            }
+          },
+          {
+            "$ref": "#/components/parameters/FilterNFTCollection"
+          },
+          {
+            "$ref": "#/components/parameters/FilterNFTTokenID"
+          },
+          {
+            "$ref": "#/components/parameters/FilterNFTKind"
+          },
+          {
+            "$ref": "#/components/parameters/FilterFrom"
+          },
+          {
+            "$ref": "#/components/parameters/FilterTo"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMinLedger"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMaxLedger"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NFTItemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or cursor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found in indexed data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{address}/nft-transfers": {
+      "get": {
+        "operationId": "account_nft_transfers",
+        "summary": "NFT movements involving this exact participant",
+        "description": "Partial indexed NFT event evidence only; no owner, supply or collection certification. Filters are exact AND matches and bind to cursor dataset, scope and snapshot. Empty valid histories return empty pages. Unsupported/malformed/failed or result-commitment-mismatched events are not NFT movements. This normalized NFT history does not require a generic observed contract metadata row.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Network"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^G[A-Z2-7]{55}$"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/FilterNFTCollection"
+          },
+          {
+            "$ref": "#/components/parameters/FilterNFTTokenID"
+          },
+          {
+            "$ref": "#/components/parameters/FilterNFTKind"
+          },
+          {
+            "$ref": "#/components/parameters/FilterFrom"
+          },
+          {
+            "$ref": "#/components/parameters/FilterTo"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMinLedger"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMaxLedger"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NFTTransferPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or cursor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found in indexed data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/contracts/{address}/nft-transfers": {
+      "get": {
+        "operationId": "contract_nft_transfers",
+        "summary": "NFT movements involving this exact participant",
+        "description": "Partial indexed NFT event evidence only; no owner, supply or collection certification. Filters are exact AND matches and bind to cursor dataset, scope and snapshot. Empty valid histories return empty pages. Unsupported/malformed/failed or result-commitment-mismatched events are not NFT movements. This normalized NFT history does not require a generic observed contract metadata row.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Network"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^C[A-Z2-7]{55}$"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/FilterNFTCollection"
+          },
+          {
+            "$ref": "#/components/parameters/FilterNFTTokenID"
+          },
+          {
+            "$ref": "#/components/parameters/FilterNFTKind"
+          },
+          {
+            "$ref": "#/components/parameters/FilterFrom"
+          },
+          {
+            "$ref": "#/components/parameters/FilterTo"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMinLedger"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMaxLedger"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NFTTransferPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or cursor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found in indexed data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/activity/{kind}": {
+      "get": {
+        "operationId": "indexed_activity",
+        "summary": "Bounded indexed activity counts and ledger buckets",
+        "description": "Uses exactly the corresponding transactions/transfers/events list filters; filters belonging to another kind are rejected. The list-only limit parameter is rejected. An optional list cursor must match kind, scope, dataset and filters and anchors the same snapshot. Buckets group ten actual ascending ledger rows, at most twelve buckets. Breakdown keys are success/failed for transactions, transfer/mint/burn/clawback for fungible movements, and contract/system/diagnostic/other for events (other remains present when zero and covers unrecognized future event types). Counts include zero buckets within an existing indexed window; no indexed window has null bounds/timestamps and no buckets.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Network"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "name": "kind",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "transactions",
+                "transfers",
+                "events"
+              ]
+            }
+          },
+          {
+            "$ref": "#/components/parameters/FilterAddress"
+          },
+          {
+            "$ref": "#/components/parameters/FilterContract"
+          },
+          {
+            "$ref": "#/components/parameters/FilterFunction"
+          },
+          {
+            "$ref": "#/components/parameters/FilterStatus"
+          },
+          {
+            "$ref": "#/components/parameters/FilterAsset"
+          },
+          {
+            "$ref": "#/components/parameters/FilterFrom"
+          },
+          {
+            "$ref": "#/components/parameters/FilterTo"
+          },
+          {
+            "$ref": "#/components/parameters/FilterEventName"
+          },
+          {
+            "$ref": "#/components/parameters/FilterEventType"
+          },
+          {
+            "$ref": "#/components/parameters/FilterEventScope"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMinLedger"
+          },
+          {
+            "$ref": "#/components/parameters/FilterMaxLedger"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Activity"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or cursor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found in indexed data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/search/suggestions": {
+      "get": {
+        "operationId": "searchSuggestions",
+        "summary": "Preview bounded indexed matches for a partial identifier",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Network"
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Positive decimal ledger prefix, 4\u201364 hexadecimal hash characters, or a 4\u201356 character G/C-address prefix. At most five matches per type; complete identifiers precede partial matches. Empty results refer only to indexed history."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchSuggestions"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or cursor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ]
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
+      "SCVal": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "xdr": {
+            "type": "string"
+          },
+          "decode_status": {
+            "type": "string",
+            "enum": [
+              "decoded",
+              "unknown"
+            ]
+          },
+          "value": {}
+        },
+        "required": [
+          "type",
+          "xdr",
+          "decode_status"
+        ]
+      },
+      "Ledger": {
+        "type": "object",
+        "properties": {
+          "network": {
+            "type": "string",
+            "enum": [
+              "testnet"
+            ]
+          },
+          "sequence": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295
+          },
+          "hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "previous_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "closed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "protocol_version": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "transaction_count": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "network",
+          "sequence",
+          "hash",
+          "previous_hash",
+          "closed_at",
+          "protocol_version",
+          "transaction_count"
+        ]
+      },
+      "Call": {
+        "type": "object",
+        "properties": {
+          "op_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "contract_id": {
+            "type": "string"
+          },
+          "function_name": {
+            "type": "string"
+          },
+          "arguments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SCVal"
+            }
+          },
+          "decode_status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "op_index",
+          "contract_id",
+          "function_name",
+          "arguments",
+          "decode_status"
+        ]
+      },
+      "Operation": {
+        "type": "object",
+        "properties": {
+          "op_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "type": {
+            "type": "string"
+          },
+          "source_account": {
+            "type": "string"
+          },
+          "details": {},
+          "decode_status": {
+            "type": "string",
+            "enum": [
+              "decoded",
+              "unknown"
+            ]
+          },
+          "raw_xdr": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "op_index",
+          "type",
+          "source_account",
+          "details",
+          "decode_status",
+          "raw_xdr"
+        ]
+      },
+      "Event": {
+        "type": "object",
+        "properties": {
+          "transaction_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "event_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "op_index": {
+            "type": "integer",
+            "minimum": 0,
+            "nullable": true,
+            "description": "Zero-based operation index, or null for transaction-level events."
+          },
+          "ledger_sequence": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295
+          },
+          "contract_id": {
+            "type": "string"
+          },
+          "event_type": {
+            "type": "string"
+          },
+          "topics": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SCVal"
+            }
+          },
+          "value": {},
+          "raw_xdr": {
+            "type": "string"
+          },
+          "event_scope": {
+            "type": "string",
+            "enum": [
+              "operation",
+              "transaction"
+            ]
+          },
+          "stage": {
+            "type": "string",
+            "nullable": true,
+            "description": "Null for operation events. Transaction stages are before_all_transactions, after_transaction, after_all_transactions, or unknown:<integer> for an unsupported stage."
+          }
+        },
+        "required": [
+          "transaction_hash",
+          "event_index",
+          "op_index",
+          "ledger_sequence",
+          "contract_id",
+          "event_type",
+          "topics",
+          "value",
+          "raw_xdr",
+          "event_scope",
+          "stage"
+        ],
+        "description": "Committed operation or transaction event. Operation event indexes remain stable; appended transaction events carry their execution stage. Event index ordering is not ledger execution chronology. Diagnostic traces remain separate."
+      },
+      "TransactionSummary": {
+        "type": "object",
+        "properties": {
+          "network": {
+            "type": "string",
+            "enum": [
+              "testnet"
+            ]
+          },
+          "hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "ledger_sequence": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295
+          },
+          "tx_index": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295
+          },
+          "source_account": {
+            "type": "string"
+          },
+          "fee_account": {
+            "type": "string"
+          },
+          "successful": {
+            "type": "boolean"
+          },
+          "fee_charged": {
+            "type": "string",
+            "pattern": "^-?[0-9]+$",
+            "description": "Exact TransactionResult.feeCharged in stroops. The initial charge/refund breakdown is provided separately in fees when available."
+          },
+          "result_code": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "calls": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Call"
+            }
+          },
+          "return_value": {},
+          "participants": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "fees": {
+            "$ref": "#/components/schemas/FeeSummary"
+          }
+        },
+        "required": [
+          "network",
+          "hash",
+          "ledger_sequence",
+          "tx_index",
+          "source_account",
+          "fee_account",
+          "successful",
+          "fee_charged",
+          "result_code",
+          "created_at",
+          "calls",
+          "return_value",
+          "participants",
+          "fees"
+        ]
+      },
+      "Transaction": {
+        "type": "object",
+        "properties": {
+          "network": {
+            "type": "string",
+            "enum": [
+              "testnet"
+            ]
+          },
+          "hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "ledger_sequence": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295
+          },
+          "tx_index": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295
+          },
+          "source_account": {
+            "type": "string"
+          },
+          "fee_account": {
+            "type": "string"
+          },
+          "successful": {
+            "type": "boolean"
+          },
+          "fee_charged": {
+            "type": "string",
+            "pattern": "^-?[0-9]+$",
+            "description": "Exact TransactionResult.feeCharged in stroops. The initial charge/refund breakdown is provided separately in fees when available."
+          },
+          "result_code": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "calls": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Call"
+            }
+          },
+          "return_value": {},
+          "participants": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "envelope_xdr": {
+            "type": "string"
+          },
+          "result_xdr": {
+            "type": "string"
+          },
+          "meta_xdr": {
+            "type": "string"
+          },
+          "operations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Operation"
+            }
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Event"
+            }
+          },
+          "diagnostics": {
+            "type": "object",
+            "properties": {
+              "availability": {
+                "type": "string",
+                "enum": [
+                  "provided",
+                  "not_provided_or_empty"
+                ]
+              },
+              "events_xdr": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "availability",
+              "events_xdr"
+            ]
+          },
+          "token_transfers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TokenTransfer"
+            }
+          },
+          "contracts": {
+            "type": "array",
+            "description": "Contract observations derived from this transaction, not aggregated current metadata.",
+            "items": {
+              "$ref": "#/components/schemas/Contract"
+            }
+          },
+          "fees": {
+            "$ref": "#/components/schemas/FeeSummary"
+          },
+          "interpretation": {
+            "$ref": "#/components/schemas/Interpretation"
+          },
+          "nft_transfers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NFTTransfer"
+            }
+          }
+        },
+        "required": [
+          "network",
+          "hash",
+          "ledger_sequence",
+          "tx_index",
+          "source_account",
+          "fee_account",
+          "successful",
+          "fee_charged",
+          "result_code",
+          "created_at",
+          "calls",
+          "return_value",
+          "participants",
+          "envelope_xdr",
+          "result_xdr",
+          "meta_xdr",
+          "operations",
+          "events",
+          "diagnostics",
+          "token_transfers",
+          "contracts",
+          "fees",
+          "interpretation",
+          "nft_transfers"
+        ]
+      },
+      "LedgerPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Ledger"
+            }
+          },
+          "next_cursor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ]
+      },
+      "TransactionPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TransactionSummary"
+            }
+          },
+          "next_cursor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ]
+      },
+      "EventPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Event"
+            }
+          },
+          "next_cursor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ]
+      },
+      "SyncState": {
+        "type": "object",
+        "properties": {
+          "network": {
+            "type": "string",
+            "enum": [
+              "testnet"
+            ]
+          },
+          "first_indexed_ledger": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295,
+            "nullable": true
+          },
+          "last_indexed_ledger": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295,
+            "nullable": true
+          },
+          "latest_network_ledger": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295,
+            "nullable": true
+          },
+          "lag": {
+            "type": "integer",
+            "minimum": 0,
+            "nullable": true
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "last_error": {
+            "type": "string",
+            "nullable": true
+          },
+          "history_complete": {
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          },
+          "processed_transactions": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "error_count": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "network",
+          "first_indexed_ledger",
+          "last_indexed_ledger",
+          "latest_network_ledger",
+          "lag",
+          "observed_at",
+          "last_error",
+          "history_complete",
+          "processed_transactions",
+          "error_count"
+        ]
+      },
+      "Overview": {
+        "type": "object",
+        "properties": {
+          "sync": {
+            "$ref": "#/components/schemas/SyncState"
+          },
+          "ledgers": {
+            "$ref": "#/components/schemas/LedgerPage"
+          },
+          "transactions": {
+            "$ref": "#/components/schemas/TransactionPage"
+          }
+        },
+        "required": [
+          "sync",
+          "ledgers",
+          "transactions"
+        ]
+      },
+      "LedgerDetail": {
+        "type": "object",
+        "properties": {
+          "ledger": {
+            "$ref": "#/components/schemas/Ledger"
+          },
+          "transactions": {
+            "$ref": "#/components/schemas/TransactionPage"
+          }
+        },
+        "required": [
+          "ledger",
+          "transactions"
+        ]
+      },
+      "AccountDetail": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "indexed"
+            ]
+          },
+          "range": {
+            "$ref": "#/components/schemas/SyncState"
+          },
+          "transactions": {
+            "$ref": "#/components/schemas/TransactionPage"
+          },
+          "history_semantics": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "address",
+          "source",
+          "range",
+          "transactions",
+          "history_semantics"
+        ]
+      },
+      "ContractDetail": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "indexed"
+            ]
+          },
+          "range": {
+            "$ref": "#/components/schemas/SyncState"
+          },
+          "transactions": {
+            "$ref": "#/components/schemas/TransactionPage"
+          },
+          "history_semantics": {
+            "type": "string"
+          },
+          "events": {
+            "$ref": "#/components/schemas/EventPage"
+          },
+          "contract": {
+            "$ref": "#/components/schemas/Contract"
+          }
+        },
+        "required": [
+          "address",
+          "source",
+          "range",
+          "transactions",
+          "history_semantics",
+          "events",
+          "contract"
+        ]
+      },
+      "SearchResult": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "ledger",
+              "transaction",
+              "account",
+              "contract"
+            ]
+          },
+          "key": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "network": {
+            "type": "string",
+            "enum": [
+              "testnet"
+            ]
+          }
+        },
+        "required": [
+          "type",
+          "key",
+          "path",
+          "network"
+        ]
+      },
+      "Health": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "alive",
+              "ready"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "Asset": {
+        "type": "object",
+        "description": "An observed token contract. SAC identity is verified against its Testnet-derived contract ID. Event-format matches do not certify custom token compliance.",
+        "properties": {
+          "network": {
+            "type": "string",
+            "enum": [
+              "testnet"
+            ]
+          },
+          "contract_id": {
+            "type": "string",
+            "pattern": "^C[A-Z2-7]{55}$"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "sac",
+              "contract"
+            ]
+          },
+          "verification": {
+            "type": "string",
+            "enum": [
+              "contract_id",
+              "event_shape"
+            ]
+          },
+          "classic_asset": {
+            "type": "string",
+            "nullable": true
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "issuer": {
+            "type": "string",
+            "nullable": true
+          },
+          "decimals": {
+            "type": "integer",
+            "minimum": 0,
+            "nullable": true,
+            "description": "Seven for verified Stellar assets; null when unknown."
+          },
+          "first_observed_ledger": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "network",
+          "contract_id",
+          "kind",
+          "verification",
+          "classic_asset",
+          "code",
+          "issuer",
+          "decimals",
+          "first_observed_ledger"
+        ]
+      },
+      "TokenTransfer": {
+        "type": "object",
+        "description": "A decoded committed operation event. This is not a balance, supply, fee, or diagnostic record.",
+        "properties": {
+          "transaction_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "ledger_sequence": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "tx_index": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "event_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "op_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "transfer",
+              "mint",
+              "burn",
+              "clawback"
+            ]
+          },
+          "asset": {
+            "$ref": "#/components/schemas/Asset"
+          },
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Exact nonnegative i128 in base units; never a JSON number."
+          },
+          "to_muxed": {
+            "$ref": "#/components/schemas/SCVal"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "transaction_hash",
+          "ledger_sequence",
+          "tx_index",
+          "event_index",
+          "op_index",
+          "kind",
+          "asset",
+          "amount",
+          "created_at"
+        ]
+      },
+      "AssetPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Asset"
+            }
+          },
+          "next_cursor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ]
+      },
+      "TokenTransferPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TokenTransfer"
+            }
+          },
+          "next_cursor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ]
+      },
+      "AssetDetail": {
+        "type": "object",
+        "properties": {
+          "asset": {
+            "$ref": "#/components/schemas/Asset"
+          },
+          "transfers": {
+            "$ref": "#/components/schemas/TokenTransferPage"
+          },
+          "range": {
+            "$ref": "#/components/schemas/SyncState"
+          }
+        },
+        "required": [
+          "asset",
+          "transfers",
+          "range"
+        ]
+      },
+      "Contract": {
+        "type": "object",
+        "description": "Latest evidence observed in indexed history, not current RPC state. Unknown fields are null; an unsupported executable kind is unknown.",
+        "properties": {
+          "network": {
+            "type": "string",
+            "enum": [
+              "testnet"
+            ]
+          },
+          "contract_id": {
+            "type": "string",
+            "pattern": "^C[A-Z2-7]{55}$"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "unknown",
+              "sac",
+              "wasm"
+            ]
+          },
+          "wasm_hash": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "executable_source": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "instance_entry",
+              "asset_contract_id",
+              null
+            ]
+          },
+          "executable_ledger": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295,
+            "nullable": true
+          },
+          "executable_tx_index": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295,
+            "nullable": true
+          },
+          "first_observed_ledger": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295,
+            "description": "First indexed observation; not a creation date."
+          },
+          "last_observed_ledger": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295
+          },
+          "creation_ledger": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295,
+            "nullable": true,
+            "description": "Only a committed instance creation inside an invocation establishes this field. Restoration does not."
+          },
+          "creation_transaction": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "creator": {
+            "type": "string",
+            "nullable": true,
+            "description": "Deployer address from a matching top-level createContract/createContractV2 preimage. Unknown for factory creations or absent evidence."
+          }
+        },
+        "required": [
+          "network",
+          "contract_id",
+          "kind",
+          "wasm_hash",
+          "executable_source",
+          "executable_ledger",
+          "executable_tx_index",
+          "first_observed_ledger",
+          "last_observed_ledger",
+          "creation_ledger",
+          "creation_transaction",
+          "creator"
+        ]
+      },
+      "FeeEvent": {
+        "type": "object",
+        "description": "A structurally validated native-asset transaction fee event. Amount is signed: positive/zero charge, negative refund. Parent summary status determines whether the full breakdown is reconciled.",
+        "properties": {
+          "event_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "account": {
+            "type": "string",
+            "description": "The normalized outer fee payer, including fee-bump transactions."
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^-?[0-9]+$"
+          },
+          "stage": {
+            "type": "string",
+            "enum": [
+              "before_all_transactions",
+              "after_transaction",
+              "after_all_transactions"
+            ]
+          }
+        },
+        "required": [
+          "event_index",
+          "account",
+          "amount",
+          "stage"
+        ]
+      },
+      "FeeSummary": {
+        "type": "object",
+        "description": "Exact stroop amounts derived only from CAP-67 transaction-level fee events. Complete requires a native SAC identity, matching payer/stages, one charge and at most one refund, and net equal to TransactionResult.feeCharged. Unavailable/invalid totals are null; absent metadata never implies zero refund.",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "complete",
+              "unavailable",
+              "invalid"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "transaction_events",
+              "unavailable"
+            ]
+          },
+          "charged": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^[0-9]+$"
+          },
+          "refunded": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^[0-9]+$"
+          },
+          "net": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^[0-9]+$"
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FeeEvent"
+            }
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true,
+            "description": "Machine-readable reason for an unavailable or invalid breakdown; null when complete."
+          }
+        },
+        "required": [
+          "status",
+          "source",
+          "charged",
+          "refunded",
+          "net",
+          "events",
+          "reason"
+        ]
+      },
+      "Action": {
+        "type": "object",
+        "description": "A supported operation or committed token effect. Failed transactions never expose applied actions. Operation indexes are zero-based; source and event indexes identify the evidence.",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "payment",
+              "create_account",
+              "account_merge",
+              "contract_call",
+              "unknown_operation",
+              "transfer",
+              "mint",
+              "burn",
+              "clawback",
+              "path_payment",
+              "swap"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "applied",
+              "failed",
+              "not_applied"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "operation",
+              "token_event"
+            ]
+          },
+          "op_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "event_indexes": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "from": {
+            "type": "string",
+            "description": "For supported contract swaps, the actual debited token owner, equal to contract_swap.trader or aquarius_swap.trader. Other operation actions retain their existing operation-source semantics."
+          },
+          "to": {
+            "type": "string",
+            "description": "Recipient when known. For supported contract swaps, the actual credited token owner, equal to contract_swap.trader or aquarius_swap.trader."
+          },
+          "contract_id": {
+            "type": "string"
+          },
+          "function": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^-?[0-9]+$",
+            "description": "Exact base units; an unsuccessful operation may have a malformed requested amount."
+          },
+          "asset": {
+            "type": "object",
+            "description": "An observed token contract. SAC identity is verified against its Testnet-derived contract ID. Event-format matches do not certify custom token compliance.",
+            "properties": {
+              "network": {
+                "type": "string",
+                "enum": [
+                  "testnet"
+                ]
+              },
+              "contract_id": {
+                "type": "string",
+                "pattern": "^C[A-Z2-7]{55}$"
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "sac",
+                  "contract"
+                ]
+              },
+              "verification": {
+                "type": "string",
+                "enum": [
+                  "contract_id",
+                  "event_shape"
+                ]
+              },
+              "classic_asset": {
+                "type": "string",
+                "nullable": true
+              },
+              "code": {
+                "type": "string",
+                "nullable": true
+              },
+              "issuer": {
+                "type": "string",
+                "nullable": true
+              },
+              "decimals": {
+                "type": "integer",
+                "minimum": 0,
+                "nullable": true,
+                "description": "Seven for verified Stellar assets; null when unknown."
+              },
+              "first_observed_ledger": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "network",
+              "contract_id",
+              "kind",
+              "verification",
+              "classic_asset",
+              "code",
+              "issuer",
+              "decimals",
+              "first_observed_ledger"
+            ],
+            "nullable": true
+          },
+          "to_muxed": {},
+          "result_code": {
+            "type": "string",
+            "nullable": true
+          },
+          "path_payment": {
+            "$ref": "#/components/schemas/PathPayment"
+          },
+          "contract_swap": {
+            "$ref": "#/components/schemas/ContractSwap"
+          },
+          "source_account": {
+            "type": "string",
+            "description": "Original envelope operation source for supported Soroswap or Aquarius swaps. Separate from the actual trader in from/to and the protocol-specific swap object. Omitted for other action kinds."
+          },
+          "aquarius_swap": {
+            "$ref": "#/components/schemas/AquariusSwap"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "title",
+          "description",
+          "status",
+          "source",
+          "op_index",
+          "event_indexes",
+          "amount",
+          "asset",
+          "result_code"
+        ]
+      },
+      "OperationFailure": {
+        "type": "object",
+        "properties": {
+          "op_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "op_index",
+          "code",
+          "message"
+        ]
+      },
+      "Failure": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "inner_code": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string"
+          },
+          "operations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OperationFailure"
+            }
+          }
+        },
+        "required": [
+          "code",
+          "inner_code",
+          "message",
+          "operations"
+        ]
+      },
+      "DiagnosticError": {
+        "type": "object",
+        "description": "Typed diagnostic evidence; it may describe a handled error and does not determine transaction success. Custom contract code meanings are not guessed.",
+        "properties": {
+          "event_index": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Index into the raw diagnostic event array, not the committed event array."
+          },
+          "contract_id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "event_index",
+          "type",
+          "code",
+          "message"
+        ]
+      },
+      "Interpretation": {
+        "type": "object",
+        "description": "Versioned partial interpretation of supported operations, classic path-payment swaps, registered Soroswap and Aquarius router exchanges, source-metadata token events and committed state writes. Available on transaction detail only; no current balances, arbitrary application adapters or internal call trees.",
+        "properties": {
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "summary": {
+            "type": "string"
+          },
+          "actions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Action"
+            }
+          },
+          "failure": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "inner_code": {
+                "type": "string",
+                "nullable": true
+              },
+              "message": {
+                "type": "string"
+              },
+              "operations": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/OperationFailure"
+                }
+              }
+            },
+            "required": [
+              "code",
+              "inner_code",
+              "message",
+              "operations"
+            ],
+            "nullable": true
+          },
+          "diagnostic_errors": {
+            "type": "array",
+            "maxItems": 64,
+            "items": {
+              "$ref": "#/components/schemas/DiagnosticError"
+            }
+          },
+          "diagnostics_truncated": {
+            "type": "boolean",
+            "description": "Additional errors or nesting beyond the supported depth remain in raw diagnostics."
+          },
+          "state_changes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StateChange"
+            }
+          }
+        },
+        "required": [
+          "version",
+          "summary",
+          "actions",
+          "failure",
+          "diagnostic_errors",
+          "diagnostics_truncated",
+          "state_changes"
+        ]
+      },
+      "StateSnapshot": {
+        "type": "object",
+        "properties": {
+          "last_modified_ledger": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "projection": {
+            "type": "string",
+            "enum": [
+              "supported_fields",
+              "xdr_only"
+            ]
+          },
+          "fields": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "last_modified_ledger",
+          "projection",
+          "fields"
+        ],
+        "description": "A partial readable projection. Full entries and extensions remain in the transaction metadata XDR; exact integer values are strings."
+      },
+      "StateChange": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "created",
+              "updated",
+              "removed",
+              "restored"
+            ]
+          },
+          "entry_type": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "transaction_before",
+              "operation",
+              "transaction_after"
+            ]
+          },
+          "op_index": {
+            "type": "integer",
+            "minimum": 0,
+            "nullable": true
+          },
+          "change_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "before_index": {
+            "type": "integer",
+            "minimum": 0,
+            "nullable": true
+          },
+          "subject": {
+            "type": "string"
+          },
+          "key": {},
+          "key_xdr": {
+            "type": "string"
+          },
+          "before_status": {
+            "type": "string",
+            "enum": [
+              "present",
+              "absent",
+              "archived",
+              "unknown"
+            ]
+          },
+          "after_status": {
+            "type": "string",
+            "enum": [
+              "present",
+              "absent"
+            ]
+          },
+          "before": {
+            "type": "object",
+            "properties": {
+              "last_modified_ledger": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "projection": {
+                "type": "string",
+                "enum": [
+                  "supported_fields",
+                  "xdr_only"
+                ]
+              },
+              "fields": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            },
+            "required": [
+              "last_modified_ledger",
+              "projection",
+              "fields"
+            ],
+            "description": "A partial readable projection. Full entries and extensions remain in the transaction metadata XDR; exact integer values are strings.",
+            "nullable": true
+          },
+          "after": {
+            "type": "object",
+            "properties": {
+              "last_modified_ledger": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "projection": {
+                "type": "string",
+                "enum": [
+                  "supported_fields",
+                  "xdr_only"
+                ]
+              },
+              "fields": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            },
+            "required": [
+              "last_modified_ledger",
+              "projection",
+              "fields"
+            ],
+            "description": "A partial readable projection. Full entries and extensions remain in the transaction metadata XDR; exact integer values are strings.",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "entry_type",
+          "scope",
+          "op_index",
+          "change_index",
+          "before_index",
+          "subject",
+          "key",
+          "key_xdr",
+          "before_status",
+          "after_status",
+          "before",
+          "after"
+        ],
+        "description": "One committed metadata write. STATE baselines are not writes. Indexes refer to the indicated metadata group. Failed transactions omit operation writes; transaction-level changes can remain. Missing baselines are unknown; restorations are archived rather than newly created."
+      },
+      "ExchangeLeg": {
+        "type": "object",
+        "properties": {
+          "asset": {
+            "$ref": "#/components/schemas/Asset"
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          }
+        },
+        "required": [
+          "asset",
+          "amount"
+        ]
+      },
+      "Trade": {
+        "type": "object",
+        "properties": {
+          "claim_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "venue": {
+            "type": "string",
+            "enum": [
+              "order_book",
+              "liquidity_pool"
+            ]
+          },
+          "input": {
+            "$ref": "#/components/schemas/ExchangeLeg"
+          },
+          "output": {
+            "$ref": "#/components/schemas/ExchangeLeg"
+          }
+        },
+        "required": [
+          "claim_index",
+          "venue",
+          "input",
+          "output"
+        ],
+        "description": "Executed result claim from the taker perspective. Claim indexes are zero-based within this operation result. Zero-amount offer cleanup claims are excluded."
+      },
+      "Exchange": {
+        "type": "object",
+        "properties": {
+          "protocol": {
+            "type": "string",
+            "enum": [
+              "stellar_dex"
+            ]
+          },
+          "input": {
+            "$ref": "#/components/schemas/ExchangeLeg"
+          },
+          "output": {
+            "$ref": "#/components/schemas/ExchangeLeg"
+          },
+          "trades": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Trade"
+            }
+          }
+        },
+        "required": [
+          "protocol",
+          "input",
+          "output",
+          "trades"
+        ],
+        "description": "Reconciled actual path-payment amounts, excluding transaction fees. Empty trades represent a same-asset payment without conversion."
+      },
+      "PathPayment": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "strict_send",
+              "strict_receive"
+            ]
+          },
+          "send_asset": {
+            "$ref": "#/components/schemas/Asset"
+          },
+          "destination_asset": {
+            "$ref": "#/components/schemas/Asset"
+          },
+          "send_limit": {
+            "type": "string",
+            "pattern": "^-?[0-9]+$"
+          },
+          "destination_limit": {
+            "type": "string",
+            "pattern": "^-?[0-9]+$"
+          },
+          "path": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Asset"
+            }
+          },
+          "execution": {
+            "type": "object",
+            "properties": {
+              "protocol": {
+                "type": "string",
+                "enum": [
+                  "stellar_dex"
+                ]
+              },
+              "input": {
+                "$ref": "#/components/schemas/ExchangeLeg"
+              },
+              "output": {
+                "$ref": "#/components/schemas/ExchangeLeg"
+              },
+              "trades": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Trade"
+                }
+              }
+            },
+            "required": [
+              "protocol",
+              "input",
+              "output",
+              "trades"
+            ],
+            "description": "Reconciled actual path-payment amounts, excluding transaction fees. Empty trades represent a same-asset payment without conversion.",
+            "nullable": true
+          }
+        },
+        "required": [
+          "mode",
+          "send_asset",
+          "destination_asset",
+          "send_limit",
+          "destination_limit",
+          "path",
+          "execution"
+        ],
+        "description": "Envelope request limits and optional reconciled execution. Strict receive fixes destination_limit and caps send_limit; strict send fixes send_limit and floors destination_limit. Failed or unreconciled results have null execution."
+      },
+      "ContractSwapHop": {
+        "type": "object",
+        "description": "A pool hop reconciled against the deterministic registered-factory route and committed token transfers. An intermediate output transfer is also the following hop input; it is not counted twice.",
+        "properties": {
+          "index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "pool_contract": {
+            "type": "string",
+            "pattern": "^C[A-Z2-7]{55}$"
+          },
+          "input": {
+            "$ref": "#/components/schemas/ExchangeLeg"
+          },
+          "output": {
+            "$ref": "#/components/schemas/ExchangeLeg"
+          },
+          "input_event_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "output_event_index": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "index",
+          "pool_contract",
+          "input",
+          "output",
+          "input_event_index",
+          "output_event_index"
+        ]
+      },
+      "ContractSwap": {
+        "type": "object",
+        "description": "Successful adapter-specific swap interpretation. The current adapter supports the registered Soroswap Testnet router with matching invocation ABI, committed router event, return amounts, successful invocation result preimage hash, request limits, deterministic pool route and token transfers. Router registration and transfer evidence do not establish historical WASM identity. Unsupported, failed, ambiguous and nested calls have no contract_swap object.",
+        "properties": {
+          "protocol": {
+            "type": "string",
+            "enum": [
+              "soroswap"
+            ]
+          },
+          "adapter_version": {
+            "type": "integer",
+            "enum": [
+              1
+            ]
+          },
+          "verification": {
+            "type": "string",
+            "enum": [
+              "registered_router_and_transfers"
+            ],
+            "description": "Identifies the evidence checks performed. This is not a claim of complete code identity or contract certification."
+          },
+          "router_contract": {
+            "type": "string",
+            "pattern": "^C[A-Z2-7]{55}$"
+          },
+          "router_wasm_hash": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "Router executable hash observed in this transaction metadata; null when absent. Missing metadata is not historical code verification."
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "exact_input",
+              "exact_output"
+            ]
+          },
+          "trader": {
+            "type": "string",
+            "pattern": "^[GC][A-Z2-7]{55}$",
+            "description": "Actual debited token owner and credited recipient from the request and matched transfer evidence. Can be an account or contract. Action.from and Action.to equal this trader; Action.source_account identifies the separate envelope operation source."
+          },
+          "input_limit": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Exact nonnegative i128 base units. Values are strings to preserve integer precision."
+          },
+          "output_limit": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Exact nonnegative i128 base units. Values are strings to preserve integer precision."
+          },
+          "deadline": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Unsigned 64-bit Unix seconds from the invocation request, preserved as an exact string."
+          },
+          "path": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^C[A-Z2-7]{55}$"
+            },
+            "minItems": 2,
+            "maxItems": 17,
+            "uniqueItems": true
+          },
+          "amounts": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$",
+              "description": "Exact positive i128 base units."
+            },
+            "minItems": 2,
+            "maxItems": 17,
+            "description": "Matching return and router-event amount vector, one amount per path token."
+          },
+          "input": {
+            "$ref": "#/components/schemas/ExchangeLeg"
+          },
+          "output": {
+            "$ref": "#/components/schemas/ExchangeLeg"
+          },
+          "hops": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContractSwapHop"
+            },
+            "minItems": 1,
+            "maxItems": 16
+          },
+          "router_event_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "transfer_event_indexes": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "minItems": 2,
+            "maxItems": 17,
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "protocol",
+          "adapter_version",
+          "verification",
+          "router_contract",
+          "router_wasm_hash",
+          "mode",
+          "trader",
+          "input_limit",
+          "output_limit",
+          "deadline",
+          "path",
+          "amounts",
+          "input",
+          "output",
+          "hops",
+          "router_event_index",
+          "transfer_event_indexes"
+        ]
+      },
+      "AquariusSwapHop": {
+        "type": "object",
+        "description": "A supported Aquarius pool hop reconciled against a committed router event, pool trade event and input/output token transfers. Pool identity is matched from that evidence; it is not deterministically derived or independently registry-verified.",
+        "properties": {
+          "index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "pool_tokens": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^C[A-Z2-7]{55}$"
+            },
+            "minItems": 2,
+            "maxItems": 8,
+            "uniqueItems": true,
+            "description": "Sorted distinct token contracts supplied in the request. Eight is this adapter's bound, not a universal protocol maximum."
+          },
+          "pool_index": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "Original 32-byte request pool index as lowercase hex. Router events do not independently prove the mapping from this index to a registered pool. This is not a WASM hash."
+          },
+          "pool_contract": {
+            "type": "string",
+            "pattern": "^C[A-Z2-7]{55}$"
+          },
+          "input": {
+            "$ref": "#/components/schemas/ExchangeLeg"
+          },
+          "output": {
+            "$ref": "#/components/schemas/ExchangeLeg"
+          },
+          "input_event_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "output_event_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "trade_event_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "router_event_index": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "index",
+          "pool_tokens",
+          "pool_index",
+          "pool_contract",
+          "input",
+          "output",
+          "input_event_index",
+          "output_event_index",
+          "trade_event_index",
+          "router_event_index"
+        ]
+      },
+      "AquariusSwap": {
+        "type": "object",
+        "description": "Successful Aquarius direct/chained exact-input, chained exact-output, or bounded single-group exact-input split through the registered Testnet router. Requires typed request, mode-specific return, successful invocation result commitment, matching pool/router events and ordered settlement transfers. Exact-output input is net of returned unused funding; split totals sum branch endpoints once. Nested, ambiguous, unsupported multi-group or rounding-dependent split calls have no aquarius_swap object. Router registration does not establish historical code identity or pool-registry membership.",
+        "properties": {
+          "protocol": {
+            "type": "string",
+            "enum": [
+              "aquarius"
+            ]
+          },
+          "adapter_version": {
+            "type": "integer",
+            "enum": [
+              1,
+              2
+            ],
+            "description": "Current adapter version is 2. Version 1 payloads cover direct/chained exact input and omit settlement/routes."
+          },
+          "verification": {
+            "type": "string",
+            "enum": [
+              "registered_router_events_and_transfers"
+            ],
+            "description": "Registered router and reconciled request/return/event/transfer evidence; no deployment-code pin, audit attribution, deterministic pool derivation or independent pool-registry verification is claimed."
+          },
+          "router_contract": {
+            "type": "string",
+            "pattern": "^C[A-Z2-7]{55}$"
+          },
+          "router_wasm_hash": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "Router executable hash observed in transaction metadata, or null when absent. This adapter has no independently verified expected code hash; an observation does not establish pinned or audited deployment identity."
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "exact_input",
+              "exact_output"
+            ]
+          },
+          "routing": {
+            "type": "string",
+            "enum": [
+              "direct",
+              "chained",
+              "split"
+            ]
+          },
+          "trader": {
+            "type": "string",
+            "pattern": "^[GC][A-Z2-7]{55}$",
+            "description": "Actual debited token owner and credited recipient from request and transfer evidence. Action.from and Action.to equal this trader; Action.source_account separately identifies the envelope operation source."
+          },
+          "input_limit": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Exact requested input for exact_input, or maximum funded input for exact_output. Actual net spending is input.amount; all amounts are exact base-unit strings."
+          },
+          "output_limit": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Minimum requested output for exact_input, or exact requested output for exact_output. Kept separate from actual output.amount."
+          },
+          "path": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^C[A-Z2-7]{55}$"
+            },
+            "minItems": 0,
+            "maxItems": 17,
+            "uniqueItems": true,
+            "description": "Direct/chained path contains two to seventeen distinct exchanged tokens. Split routing has an empty root path; each branch retains its own path in routes. Bounds belong to this adapter, not the universal protocol."
+          },
+          "input": {
+            "$ref": "#/components/schemas/ExchangeLeg"
+          },
+          "output": {
+            "$ref": "#/components/schemas/ExchangeLeg"
+          },
+          "hops": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AquariusSwapHop"
+            },
+            "minItems": 1,
+            "maxItems": 16,
+            "description": "Flattened source-order pool evidence. Direct swaps have one hop; chained and split swaps have at most sixteen total hops under this adapter's bound. Split routes reference this array by hop_indexes."
+          },
+          "transfer_event_indexes": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "minItems": 2,
+            "maxItems": 35,
+            "uniqueItems": true,
+            "description": "Every reconciled settlement transfer in source order. Direct swaps have two; routed exact-input swaps with H total hops have 2H+2 including funding/payout; exact-output swaps can add one positive unused-input return after payout. No intermediate volume is added to actual input/output."
+          },
+          "settlement": {
+            "$ref": "#/components/schemas/AquariusSettlement"
+          },
+          "routes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AquariusSwapRoute"
+            },
+            "minItems": 2,
+            "maxItems": 8,
+            "description": "Present for supported single-group exact-input split routing only. Two to eight branches with positive weights summing to 10000, common endpoint tokens, exact divisible allocations and globally distinct pools. Other group/rounding forms are not interpreted."
+          }
+        },
+        "required": [
+          "protocol",
+          "adapter_version",
+          "verification",
+          "router_contract",
+          "router_wasm_hash",
+          "mode",
+          "routing",
+          "trader",
+          "input_limit",
+          "output_limit",
+          "path",
+          "input",
+          "output",
+          "hops",
+          "transfer_event_indexes"
+        ]
+      },
+      "AquariusSettlement": {
+        "type": "object",
+        "description": "Router custody evidence for chained and split swaps. Actual net input equals funded_amount minus refunded_amount. For exact output, the maximum input is funded and any positive unused input is returned after the final output payout. Zero refund has no return event and a null refund_event_index. This is input-token settlement, separate from network fee refunds. Omitted for direct swaps and legacy adapter-version-1 payloads.",
+        "properties": {
+          "funded_amount": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "refunded_amount": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "funding_event_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "refund_event_index": {
+            "type": "integer",
+            "minimum": 0,
+            "nullable": true
+          },
+          "payout_event_index": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "funded_amount",
+          "refunded_amount",
+          "funding_event_index",
+          "refund_event_index",
+          "payout_event_index"
+        ]
+      },
+      "AquariusSwapRoute": {
+        "type": "object",
+        "description": "One exact-input branch of a supported single-group split. Branches have common endpoint tokens. Weighted input allocation must divide exactly by 10000; unsupported rounding cases are left as contract calls. Aggregate swap input/output sum branch endpoints once, without adding intermediate hops.",
+        "properties": {
+          "index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "weight_bps": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000,
+            "description": "Positive basis-point input share. All branch weights sum to 10000."
+          },
+          "path": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^C[A-Z2-7]{55}$"
+            },
+            "minItems": 2,
+            "maxItems": 17,
+            "uniqueItems": true
+          },
+          "input": {
+            "$ref": "#/components/schemas/ExchangeLeg"
+          },
+          "output": {
+            "$ref": "#/components/schemas/ExchangeLeg"
+          },
+          "hop_indexes": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "minItems": 1,
+            "maxItems": 16,
+            "uniqueItems": true,
+            "description": "Zero-based references into the flattened AquariusSwap.hops array, in branch order."
+          }
+        },
+        "required": [
+          "index",
+          "weight_bps",
+          "path",
+          "input",
+          "output",
+          "hop_indexes"
+        ]
+      },
+      "NFTCollection": {
+        "type": "object",
+        "description": "An NFT event emitter observed in indexed history. Counts cover the collection at the response/list snapshot and do not establish current owners, circulating supply, metadata or contract compliance.",
+        "properties": {
+          "network": {
+            "type": "string",
+            "enum": [
+              "testnet"
+            ]
+          },
+          "contract_id": {
+            "type": "string",
+            "pattern": "^C[A-Z2-7]{55}$"
+          },
+          "verification": {
+            "type": "string",
+            "enum": [
+              "event_shape"
+            ]
+          },
+          "first_observed_ledger": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295
+          },
+          "observed_token_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "transfer_count": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "network",
+          "contract_id",
+          "verification",
+          "first_observed_ledger",
+          "observed_token_count",
+          "transfer_count"
+        ]
+      },
+      "NFTTransfer": {
+        "type": "object",
+        "description": "One committed NFT movement matched by event shape and invocation result commitment. Unsigned token IDs remain separate from fungible amounts. Burn is an OpenZeppelin burnable extension, not a draft SEP-50 event. Recipients do not establish current ownership.",
+        "properties": {
+          "transaction_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "ledger_sequence": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295
+          },
+          "tx_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "event_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "op_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "transfer",
+              "mint",
+              "burn"
+            ]
+          },
+          "contract_id": {
+            "type": "string",
+            "pattern": "^C[A-Z2-7]{55}$"
+          },
+          "token_id": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "maxLength": 78,
+            "description": "Canonical unsigned decimal token identifier from zero through 2^256-1. Never a floating-point amount; no leading zeros except zero itself."
+          },
+          "token_id_type": {
+            "type": "string",
+            "enum": [
+              "u32",
+              "u64",
+              "u128",
+              "u256"
+            ],
+            "description": "Original unsigned ScVal width retained as event provenance."
+          },
+          "from": {
+            "type": "string",
+            "pattern": "^[GC][A-Z2-7]{55}$"
+          },
+          "to": {
+            "type": "string",
+            "pattern": "^[GC][A-Z2-7]{55}$"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "verification": {
+            "type": "string",
+            "enum": [
+              "event_shape"
+            ]
+          },
+          "event_standard": {
+            "type": "string",
+            "enum": [
+              "sep50",
+              "openzeppelin_burnable"
+            ]
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "scalar",
+              "token_id_map"
+            ]
+          }
+        },
+        "required": [
+          "transaction_hash",
+          "ledger_sequence",
+          "tx_index",
+          "event_index",
+          "op_index",
+          "kind",
+          "contract_id",
+          "token_id",
+          "token_id_type",
+          "created_at",
+          "verification",
+          "event_standard",
+          "format"
+        ]
+      },
+      "NFTItem": {
+        "type": "object",
+        "description": "An observed collection-scoped token ID and its indexed movement count at the response snapshot. No current owner, image or live metadata is inferred.",
+        "properties": {
+          "network": {
+            "type": "string",
+            "enum": [
+              "testnet"
+            ]
+          },
+          "contract_id": {
+            "type": "string",
+            "pattern": "^C[A-Z2-7]{55}$"
+          },
+          "token_id": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "maxLength": 78,
+            "description": "Canonical unsigned decimal token identifier from zero through 2^256-1. Never a floating-point amount; no leading zeros except zero itself."
+          },
+          "first_observed_ledger": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295
+          },
+          "transfer_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "verification": {
+            "type": "string",
+            "enum": [
+              "event_shape"
+            ]
+          }
+        },
+        "required": [
+          "network",
+          "contract_id",
+          "token_id",
+          "first_observed_ledger",
+          "transfer_count",
+          "verification"
+        ]
+      },
+      "NFTCollectionPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NFTCollection"
+            }
+          },
+          "next_cursor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ]
+      },
+      "NFTTransferPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NFTTransfer"
+            }
+          },
+          "next_cursor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ]
+      },
+      "NFTCollectionDetail": {
+        "type": "object",
+        "description": "Counts cover the entire collection/item through snapshot_ledger; filters constrain only the movement page. range is the current ingestion state and can advance beyond this cursor snapshot.",
+        "properties": {
+          "collection": {
+            "$ref": "#/components/schemas/NFTCollection"
+          },
+          "transfers": {
+            "$ref": "#/components/schemas/NFTTransferPage"
+          },
+          "range": {
+            "$ref": "#/components/schemas/SyncState"
+          },
+          "snapshot_ledger": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295
+          }
+        },
+        "required": [
+          "collection",
+          "transfers",
+          "range",
+          "snapshot_ledger"
+        ]
+      },
+      "NFTItemDetail": {
+        "type": "object",
+        "description": "Counts cover the entire collection/item through snapshot_ledger; filters constrain only the movement page. range is the current ingestion state and can advance beyond this cursor snapshot.",
+        "properties": {
+          "item": {
+            "$ref": "#/components/schemas/NFTItem"
+          },
+          "transfers": {
+            "$ref": "#/components/schemas/NFTTransferPage"
+          },
+          "range": {
+            "$ref": "#/components/schemas/SyncState"
+          },
+          "snapshot_ledger": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295
+          }
+        },
+        "required": [
+          "item",
+          "transfers",
+          "range",
+          "snapshot_ledger"
+        ]
+      },
+      "ActivityBucket": {
+        "type": "object",
+        "properties": {
+          "first_ledger": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295
+          },
+          "last_ledger": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295
+          },
+          "closed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "first_ledger",
+          "last_ledger",
+          "closed_at",
+          "count"
+        ],
+        "description": "One ascending group of at most ten actual indexed ledger rows, including zero matching records. closed_at is the last ledger close in this bucket; bucket durations need not be equal."
+      },
+      "ActivityCategory": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "enum": [
+              "success",
+              "failed",
+              "transfer",
+              "mint",
+              "burn",
+              "clawback",
+              "contract",
+              "system",
+              "diagnostic",
+              "other"
+            ]
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "key",
+          "count"
+        ]
+      },
+      "Activity": {
+        "type": "object",
+        "description": "Matching record counts over at most the latest 120 indexed ledger rows within selected ledger bounds and an optional compatible list cursor snapshot. This is not full network history, page-only totals, token volume, balances or supply. No indexed window and zero matches in a real window remain distinct.",
+        "properties": {
+          "network": {
+            "type": "string",
+            "enum": [
+              "testnet"
+            ]
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "transactions",
+              "transfers",
+              "events"
+            ]
+          },
+          "window_limit": {
+            "type": "integer",
+            "enum": [
+              120
+            ]
+          },
+          "first_ledger": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295,
+            "nullable": true
+          },
+          "last_ledger": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295,
+            "nullable": true
+          },
+          "ledger_count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 120
+          },
+          "from": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "to": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "buckets": {
+            "type": "array",
+            "maxItems": 12,
+            "items": {
+              "$ref": "#/components/schemas/ActivityBucket"
+            }
+          },
+          "breakdown": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActivityCategory"
+            }
+          }
+        },
+        "required": [
+          "network",
+          "kind",
+          "window_limit",
+          "first_ledger",
+          "last_ledger",
+          "ledger_count",
+          "from",
+          "to",
+          "total",
+          "buckets",
+          "breakdown"
+        ]
+      },
+      "SearchMatch": {
+        "type": "object",
+        "required": [
+          "type",
+          "key",
+          "path"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "ledger",
+              "transaction",
+              "account",
+              "contract"
+            ]
+          },
+          "key": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string",
+            "description": "Local explorer route for the observed entity."
+          }
+        }
+      },
+      "SearchSuggestions": {
+        "type": "object",
+        "required": [
+          "network",
+          "query",
+          "limit",
+          "items"
+        ],
+        "properties": {
+          "network": {
+            "type": "string",
+            "enum": [
+              "testnet"
+            ]
+          },
+          "query": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "enum": [
+              10
+            ]
+          },
+          "items": {
+            "type": "array",
+            "maxItems": 10,
+            "items": {
+              "$ref": "#/components/schemas/SearchMatch"
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "Limit": {
+        "name": "limit",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200,
+          "default": 20
+        },
+        "description": "Default min(20, API_MAX_LIMIT); requests above API_MAX_LIMIT are rejected. Default configured maximum is 100."
+      },
+      "Cursor": {
+        "name": "cursor",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "maxLength": 2048
+        },
+        "description": "Opaque pagination token bound to dataset, query kind, entity scope, exact filter values, and snapshot checkpoint. Keep filters unchanged on subsequent pages; query parameter order and page size may change."
+      },
+      "Network": {
+        "name": "network",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "testnet"
+          ]
+        }
+      },
+      "FilterAddress": {
+        "name": "address",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "pattern": "^[GC][A-Z2-7]{55}$"
+        },
+        "description": "Exact indexed participant G-address or C-address. Uses the documented partial account/contract participation index."
+      },
+      "FilterContract": {
+        "name": "contract",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "pattern": "^C[A-Z2-7]{55}$"
+        },
+        "description": "Exact contract C-address. With function, both must match the same top-level call; otherwise matches observed contract participation."
+      },
+      "FilterAsset": {
+        "name": "asset",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "pattern": "^C[A-Z2-7]{55}$"
+        },
+        "description": "Exact emitting token contract C-address."
+      },
+      "FilterFrom": {
+        "name": "from",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "pattern": "^[GC][A-Z2-7]{55}$"
+        },
+        "description": "Exact movement sender G-address or C-address; direction matters."
+      },
+      "FilterTo": {
+        "name": "to",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "pattern": "^[GC][A-Z2-7]{55}$"
+        },
+        "description": "Exact movement recipient G-address or C-address; direction matters."
+      },
+      "FilterFunction": {
+        "name": "function",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_]{1,32}$"
+        },
+        "description": "Case-sensitive exact top-level function name. Does not reconstruct internal calls."
+      },
+      "FilterStatus": {
+        "name": "status",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "success",
+            "failed"
+          ]
+        },
+        "description": "Transaction execution result."
+      },
+      "FilterEventName": {
+        "name": "event_name",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_]{1,32}$"
+        },
+        "description": "Case-sensitive exact first symbol topic. Non-symbol first topics do not match."
+      },
+      "FilterEventType": {
+        "name": "event_type",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "contract",
+            "system",
+            "diagnostic"
+          ]
+        },
+        "description": "Committed operation or transaction event type. Raw diagnostic traces remain separate."
+      },
+      "FilterMinLedger": {
+        "name": "min_ledger",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4294967295
+        },
+        "description": "Inclusive minimum ledger sequence. Must not exceed max_ledger."
+      },
+      "FilterMaxLedger": {
+        "name": "max_ledger",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4294967295
+        },
+        "description": "Inclusive maximum ledger sequence, additionally limited by the pagination snapshot."
+      },
+      "FilterEventScope": {
+        "name": "event_scope",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "operation",
+            "transaction"
+          ]
+        },
+        "description": "Restrict committed events to their source. Transaction events include CAP-67 fees/refunds even when the transaction failed."
+      },
+      "FilterNFTCollection": {
+        "name": "collection",
+        "in": "query",
+        "description": "Exact observed NFT emitter contract. All NFT filters use AND.",
+        "schema": {
+          "type": "string",
+          "pattern": "^C[A-Z2-7]{55}$"
+        }
+      },
+      "FilterNFTTokenID": {
+        "name": "token_id",
+        "in": "query",
+        "description": "Exact collection-scoped unsigned token ID. Without collection, matches this identifier across observed collections.",
+        "schema": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$",
+          "maxLength": 78,
+          "description": "Canonical unsigned decimal token identifier from zero through 2^256-1. Never a floating-point amount; no leading zeros except zero itself."
+        }
+      },
+      "FilterNFTKind": {
+        "name": "kind",
+        "in": "query",
+        "description": "Committed NFT movement kind; burn is the supported burnable extension.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "transfer",
+            "mint",
+            "burn"
+          ]
+        }
+      }
+    }
+  }
+}

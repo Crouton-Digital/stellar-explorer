@@ -1,0 +1,54 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: crouton
+          POSTGRES_PASSWORD: test-only
+          POSTGRES_DB: crouton_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U crouton -d crouton_test"
+          --health-interval 3s --health-timeout 3s --health-retries 20
+    env:
+      TEST_DATABASE_URL: postgres://crouton:test-only@localhost:5432/crouton_test?sslmode=disable
+      NUXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.21.1'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Go tests, integration tests, vet and build
+        run: |
+          test -z "$(gofmt -l cmd internal migrations docs/*.go)"
+          go test -race ./... -count=1
+          go vet ./...
+          go build ./cmd/...
+      - name: Web checks and production build
+        working-directory: web
+        run: |
+          npm ci
+          npm run format:check
+          npm test
+          npm run typecheck
+          npm run build
+      - name: Seed captured real Testnet data
+        run: DATABASE_URL="$TEST_DATABASE_URL" go run ./cmd/replay tests/fixtures/testnet.json
+      - name: Browser tests
+        working-directory: web
+        run: |
+          npx playwright install --with-deps chromium
+          npm run test:e2e
+      - name: Validate Compose
+        run: |
+          cp .env.example .env
+          docker compose config --quiet

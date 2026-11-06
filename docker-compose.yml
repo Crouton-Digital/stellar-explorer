@@ -1,0 +1,59 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: crouton
+      POSTGRES_DB: crouton
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Copy .env.example to .env first}
+    ports:
+      - '127.0.0.1:${POSTGRES_PORT:-5432}:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U crouton -d crouton']
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  api:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
+    env_file: .env
+    environment:
+      API_LISTEN: ':8080'
+    ports:
+      - '127.0.0.1:8080:8080'
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '--spider', 'http://127.0.0.1:8080/health/ready']
+      start_period: 10m
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    init: true
+  indexer:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
+    command: ['/app/indexer']
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+    init: true
+  web:
+    build:
+      context: .
+      dockerfile: deploy/web.Dockerfile
+    environment:
+      NUXT_API_BASE: http://api:8080
+    ports:
+      - '127.0.0.1:3000:3000'
+    depends_on:
+      api:
+        condition: service_healthy
+    init: true
+volumes:
+  postgres-data:

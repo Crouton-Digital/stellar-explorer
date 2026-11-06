@@ -1,0 +1,29 @@
+{
+  "name": "crouton-stellar-explorer-web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt dev --host 0.0.0.0",
+    "build": "nuxt build",
+    "typecheck": "nuxt typecheck",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "node --test tests/*.test.mjs",
+    "test:e2e": "playwright test",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "nuxt": "4.2.2",
+    "vue": "3.5.45",
+    "vue-router": "4.6.3"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1",
+    "prettier": "3.6.2",
+    "typescript": "5.9.3",
+    "vue-tsc": "3.1.4"
+  },
+  "engines": {
+    "node": ">=22.21.1"
+  }
+}
